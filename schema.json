@@ -1,0 +1,35 @@
+{
+  "type": "component",
+  "metadata": {},
+  "schema": {
+    "name": "Budibase-File-Upload",
+    "friendlyName": "Budibase File Upload",
+    "description": "A Budibase form component that allows you to upload file and store them within a string in your database. The file is viewable and downloadable. This allows you store your files inside of your SQL or internal DB without using the default solution of a url to MinIO.",
+    "icon": "FileShare",
+    "settings": [
+      {
+        "type": "field/string",
+        "key": "field",
+        "label": "Field"
+      },
+      {
+        "type": "text",
+        "key": "label",
+        "label": "Label"
+      },
+      {
+        "type": "number",
+        "key": "maxSize",
+        "label": "Max File Size (Bytes)",
+        "max": 1000000000,
+        "min": 0
+      },
+      {
+        "type": "event",
+        "key": "onChange",
+        "label": "On Change"
+      }
+    ],
+    "info": "Created by chungchunwang on GitHub at: https://github.com/chungchunwang/Budibase-File-Upload. You can find detailed instructions there. Please report any issues or feature requests to the GitHub repo (or perhaps star!)."
+  }
+}

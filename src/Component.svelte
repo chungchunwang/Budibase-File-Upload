@@ -1,0 +1,266 @@
+<script>
+    //By: Chungchun Wang (https://github.com/chungchunwang)
+    //To make the plugin fit the look of Budibase, some of this code and the styling is from the Attachment Field component (https://github.com/Budibase/budibase/blob/develop/packages/client/src/components/app/forms/AttachmentField.svelte) referenced in the docs.
+  
+    //imports
+    import { getContext, onDestroy, onMount } from "svelte";
+  
+    //input variables
+    export let field;
+    export let label;
+    export let onChange;
+    export let maxSize;
+    
+  
+    //Getting budibase API
+    const { styleable } = getContext("sdk");
+    const component = getContext("component");
+    const formContext = getContext("form");
+    const formStepContext = getContext("form-step");
+    const fieldGroupContext = getContext("field-group");
+    const { notificationStore } = getContext("sdk");
+  
+    //Budibase field group setup
+    let fieldApi;
+    let fieldState;
+    const formApi = formContext?.formApi;
+    const labelPos = fieldGroupContext?.labelPosition || "above";
+    $: formStep = formStepContext ? $formStepContext || 1 : 1;
+    $: formField = formApi?.registerField(
+      field,
+      "text",
+      0,
+      false,
+      null,
+      formStep
+    );
+    $: unsubscribe = formField?.subscribe((value) => {
+      fieldState = value?.fieldState;
+      fieldApi = value?.fieldApi;
+    });
+    $: labelClass =
+      labelPos === "above" ? "" : `spectrum-FieldLabel--${labelPos}`;
+    onDestroy(() => {
+      fieldApi?.deregister();
+      unsubscribe?.();
+    });
+
+    let buttonID = Math.random().toString(16);
+  
+    let files = []; //List of files - in link format
+    let archivedFiles = []; //Stored copy of files in case a process fails
+  
+    let browseFiles = []; //Files that are selected to be uploaded
+  
+    //Generates JSON from files and stores it in the field
+    let syncFilesWithField = () => {
+      archivedFiles = [...files];
+      let fileToLinkPromises = [];
+      for (let i = 0; i < browseFiles.length; i++) {
+        fileToLinkPromises.push(readFileToLink(browseFiles[i]));
+      }
+      Promise.all(fileToLinkPromises)
+        .then((values) => {
+          var fileDataArray = [];
+          for (let i = 0; i < values.length; i++) {
+            let e = values[i];
+            if (maxSize && maxSize < browseFiles[i].size) {
+              throw new Error("file too large");
+            }
+            const fileData = {
+              name: browseFiles[i].name,
+              type: browseFiles[i].type,
+              size: browseFiles[i].size,
+              link: e.target.result,
+            };
+            fileDataArray.push(fileData);
+          }
+          browseFiles = [];
+          files = files.concat(fileDataArray);
+          let json = JSON.stringify(files);
+          const changed = fieldApi.setValue(json);
+          if (onChange && changed) {
+            onChange({ value: json });
+          }
+          archivedFiles = [...files];
+        })
+        .catch((e) => {
+          switch (e.message) {
+            case "file too large":
+              notificationStore.actions.warning("File size too large.");
+              break;
+            default:
+              notificationStore.actions.warning(
+                "Error reading files. Try again."
+              );
+              break;
+          }
+          files = [...archivedFiles];
+          browseFiles = [];
+        });
+    };
+    //Reads a file and returns a promise that resolves to a link
+    function readFileToLink(file) {
+      return new Promise((resolve, reject) => {
+        var fileReader = new FileReader();
+        fileReader.onload = (e) => resolve(e);
+        fileReader.onerror = (e) => reject(e);
+        fileReader.readAsDataURL(file);
+      });
+    }
+  
+    //Everytime the browseFiles array changes, the files are processed.
+    $: if (browseFiles.length > 0) syncFilesWithField();
+  
+    //Parses inputted files and saves them to the files array.
+    onMount(() => {
+      if (fieldState?.value) {
+        files = JSON.parse(fieldState.value);
+        archivedFiles = [...files];
+      }
+    });
+  
+    //Opens a file in a new tab.
+    let onLinkClick = (title, link) => {
+      var iframe =
+        "<html><head> <style>body {margin: 0;} </style><title>Attachment: " +
+        title +
+        "</title><body><iframe width='100%' height='100%' src='" +
+        link +
+        "'></iframe></body>  </html>";
+      var newWindow = window.open();
+      newWindow.document.open();
+      newWindow.document.write(iframe);
+      newWindow.document.close();
+    };
+    let deleteButtonClick = (index) => {
+      files.splice(index, 1);
+      syncFilesWithField();
+    };
+  </script>
+
+  <div class="spectrum-Form-item" use:styleable={$component.styles}>
+    {#if !formContext}
+      <div class="placeholder">Form components need to be wrapped in a form</div>
+    {:else}
+      <label
+        class:hidden={!label}
+        for={fieldState?.fieldId}
+        class={`spectrum-FieldLabel spectrum-FieldLabel--sizeM spectrum-Form-itemLabel ${labelClass}`}
+      >
+        {label || " "}
+      </label>
+      <div class="spectrum-Form-itemField">
+        {#if fieldState}
+          <input
+            type="file"
+            id="{buttonID}"
+            style="display: none;"
+            multiple
+            bind:files={browseFiles}
+          />
+          <input
+            type="button"
+            value="Browse..."
+            class="browse-button"
+            onclick="document.getElementById('{buttonID}').click();"
+          />
+          <div>
+            {#each files as file, i}
+              <div class="file-button-body">
+                <button
+                  class="file-button file-button-delete"
+                  on:click={() => deleteButtonClick(i)}>✖</button
+                >
+                <button
+                  class="file-button file-button-link"
+                  on:click={() => onLinkClick(file.name, file.link)}
+                >
+                  {file.name}
+                </button>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+    {/if}
+  </div>
+
+  
+  <style>
+    .placeholder {
+      color: var(--spectrum-global-color-gray-600);
+    }
+    label {
+      white-space: nowrap;
+    }
+    label.hidden {
+      padding: 0;
+    }
+    .spectrum-Form-itemField {
+      position: relative;
+      width: 100%;
+      background-color: white;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid rgb(190, 190, 190);
+    }
+    .browse-button {
+      position: relative;
+      width: 100%;
+      height: 50px;
+      cursor: pointer;
+      border: 1px solid rgb(190, 190, 190);
+      border-radius: 4px;
+      border-width: 1px;
+      color: rgb(110, 110, 110);
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .file-button-body {
+      position: relative;
+      width: 100%;
+      height: 50px;
+      cursor: pointer;
+      border: 1px solid rgb(190, 190, 190);
+      border-radius: 4px;
+      border-width: 1px;
+      color: rgb(110, 110, 110);
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .file-button {
+      border: 0;
+      font: inherit;
+      color: inherit;
+    }
+    .file-button-delete {
+      position: absolute;
+      width: 40px;
+      height: 100%;
+      left: 0;
+      border: 0;
+      background-color: rgb(151, 151, 151);
+      color: rgb(168, 87, 84);
+    }
+    .file-button-link {
+      background-color: rgb(226, 226, 226);
+      position: absolute;
+      width: calc(100% - 40px);
+      height: 100%;
+      left: 40px;
+    }
+    .error {
+      color: var(
+        --spectrum-semantic-negative-color-default,
+        var(--spectrum-global-color-red-500)
+      );
+      font-size: var(--spectrum-global-dimension-font-size-75);
+      margin-top: var(--spectrum-global-dimension-size-75);
+    }
+    .spectrum-FieldLabel--right,
+    .spectrum-FieldLabel--left {
+      padding-right: var(--spectrum-global-dimension-size-200);
+    }
+  </style>
+  
