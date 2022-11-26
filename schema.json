@@ -25,6 +25,13 @@
         "min": 0
       },
       {
+        "type": "number",
+        "key": "maxFiles",
+        "label": "Max Number of Files",
+        "max": 100,
+        "min": 0
+      },
+      {
         "type": "event",
         "key": "onChange",
         "label": "On Change"
