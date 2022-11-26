@@ -1,5 +1,6 @@
 # Budibase File Upload Tool
 ## Demo Video
+Note: You can also set accepted file types, which is not shown in the video.
 ![Example GIF](./assets/ezgif.com-gif-maker%20(1).gif)
 
 
@@ -18,6 +19,7 @@ This is a plugin for the low-code platform Budibase. Find out more about Budibas
 - Label: The label for the field.
 - Max Size: The maximum size of a file **in bytes**.
 - Max Number of Files: The maximum number of files that can be stored in the field.
+- Accepted File Extensions: A list of extensions seperated by commas that are acceptable input types. For example: ".jpg,.png,.pdf"
 - On Change: A callback for whenever the files inside of the form change.
 
 ## Other Tools
