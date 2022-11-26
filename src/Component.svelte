@@ -102,14 +102,14 @@
           };
           fileDataArray.push(fileData);
         }
-        browseFiles = [];
-        document.getElementById(buttonID).value = null;
         files = files.concat(fileDataArray);
         if (useBlobURL) {
-          for(let i = 0; i<browseFiles.length; i++){
+          for (let i = 0; i < browseFiles.length; i++) {
             blobFiles.push(URL.createObjectURL(browseFiles[i]));
           }
         }
+        browseFiles = [];
+        document.getElementById(buttonID).value = null;
         let json = JSON.stringify(files);
         if (encodingProtection) {
           json = "." + json + ".";
@@ -144,14 +144,35 @@
 
   let readDataLinkToBlobURL = (link) => {
     return new Promise((resolve, reject) => {
-      fetch(link.link).then((r) => {
-        r.blob().then((blob) => {
-          let blobURL = URL.createObjectURL(blob);
-          resolve(blobURL);
-        });
-      });
+      let blob = dataURItoBlob(link);
+      let blobURL = URL.createObjectURL(blob);
+      resolve(blobURL);
     });
   };
+  //https://stackoverflow.com/questions/12168909/blob-from-dataurl
+  function dataURItoBlob(dataURI) {
+    // convert base64 to raw binary data held in a string
+    // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+    var byteString = atob(dataURI.split(",")[1]);
+
+    // separate out the mime component
+    var mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+
+    // write the bytes of the string to an ArrayBuffer
+    var ab = new ArrayBuffer(byteString.length);
+
+    // create a view into the buffer
+    var ia = new Uint8Array(ab);
+
+    // set the bytes of the buffer to the correct values
+    for (var i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+
+    // write the ArrayBuffer to a blob, and you're done
+    var blob = new Blob([ab], { type: mimeString });
+    return blob;
+  }
 
   //Parses inputted files and saves them to the files array.
   onMount(() => {
@@ -172,7 +193,7 @@
       if (useBlobURL) {
         let fileToBlobPromises = [];
         for (let i = 0; i < files.length; i++) {
-          fileToBlobPromises.push(readDataLinkToBlobURL(files[i]));
+          fileToBlobPromises.push(readDataLinkToBlobURL(files[i].link));
         }
         Promise.all(fileToBlobPromises)
           .then((values) => {
