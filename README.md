@@ -32,6 +32,9 @@ You are probably using a SQL DB. Make sure to select Encoding Protection to circ
 ### "When I click on a file, it opens a new tab which is blocked."
 Check the BlobURL option, which does not have this issue.
 
+## Versions
+Note: If you are going back to use older versions, do not use versions 1.0.3 or 1.0.4. They have bugs.
+
 ## Other Tools
 This plugin also has a companion Repeater plugin so that you can display the files outside of a form. [Check it out here!](https://github.com/chungchunwang/Budibase-File-Repeater)
 
