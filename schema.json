@@ -32,6 +32,11 @@
         "min": 0
       },
       {
+        "type": "text",
+        "key": "acceptedFiles",
+        "label": "Accepted File Extensions: (e.g. '.jpg,.png,.pdf')"
+      },
+      {
         "type": "event",
         "key": "onChange",
         "label": "On Change"

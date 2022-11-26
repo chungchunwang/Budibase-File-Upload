@@ -11,6 +11,7 @@
   export let onChange;
   export let maxSize;
   export let maxFiles;
+  export let acceptedFiles;
 
   //Getting budibase API
   const { styleable } = getContext("sdk");
@@ -54,6 +55,7 @@
 
   //Generates JSON from files and stores it in the field
   let syncFilesWithField = () => {
+    //Check if adding selected files will breach file length restriction.
     if (maxFiles && files.length + browseFiles.length > maxFiles) {
       notificationStore.actions.warning(
         "Too many files. You can only upload " +
@@ -63,6 +65,21 @@
       browseFiles = [];
       document.getElementById(buttonID).value = null;
       return;
+    }
+    //Check if adding selected files will breach file size restriction.
+    for (let i = 0; i < browseFiles.length; i++) {
+      if (maxSize && maxSize < browseFiles[i].size) {
+        notificationStore.actions.warning(
+          "File " +
+            browseFiles[i].name +
+            " is too large. You can only upload files up to " +
+            maxSize +
+            " bytes into this field."
+        );
+        browseFiles = [];
+        document.getElementById(buttonID).value = null;
+        return;
+      }
     }
     archivedFiles = [...files];
     let fileToLinkPromises = [];
@@ -74,9 +91,6 @@
         var fileDataArray = [];
         for (let i = 0; i < values.length; i++) {
           let e = values[i];
-          if (maxSize && maxSize < browseFiles[i].size) {
-            throw new Error("file too large");
-          }
           const fileData = {
             name: browseFiles[i].name,
             type: browseFiles[i].type,
@@ -96,16 +110,7 @@
         archivedFiles = [...files];
       })
       .catch((e) => {
-        switch (e.message) {
-          case "file too large":
-            notificationStore.actions.warning("File size too large.");
-            break;
-          default:
-            notificationStore.actions.warning(
-              "Error reading files. Try again."
-            );
-            break;
-        }
+        notificationStore.actions.warning("Error reading files. Try again.");
         files = [...archivedFiles];
         browseFiles = [];
         document.getElementById(buttonID).value = null;
@@ -179,6 +184,7 @@
           id={buttonID}
           style="display: none;"
           multiple
+          accept={acceptedFiles}
           bind:files={browseFiles}
         />
         <input
