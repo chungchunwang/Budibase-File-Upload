@@ -37,6 +37,18 @@
         "label": "Accepted File Extensions: (e.g. '.jpg,.png,.pdf')"
       },
       {
+        "type": "boolean",
+        "key": "encodingProtection",
+        "label": "Encoding Protection - Resolves Budibase Bug #8826 For SQL Databases",
+        "defaultValue": true
+      },
+      {
+        "type": "boolean",
+        "key": "useBlobURL",
+        "label": "Use BlobURL instead of DataURL (Bypasses CORS issues in display - recommended)",
+        "defaultValue": true
+      },
+      {
         "type": "event",
         "key": "onChange",
         "label": "On Change"

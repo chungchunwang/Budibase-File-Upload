@@ -12,6 +12,8 @@
   export let maxSize;
   export let maxFiles;
   export let acceptedFiles;
+  export let encodingProtection;
+  export let useBlobURL;
 
   //Getting budibase API
   const { styleable } = getContext("sdk");
@@ -103,6 +105,9 @@
         document.getElementById(buttonID).value = null;
         files = files.concat(fileDataArray);
         let json = JSON.stringify(files);
+        if(encodingProtection){
+          json = "."+json + ".";
+        }
         const changed = fieldApi.setValue(json);
         if (onChange && changed) {
           onChange({ value: json });
@@ -118,6 +123,11 @@
   };
   //Reads a file and returns a promise that resolves to a link
   function readFileToLink(file) {
+    if(useBlobURL){
+      return new Promise((resolve, reject) => {
+      resolve(URL.createObjectURL(file));
+    });
+    }
     return new Promise((resolve, reject) => {
       var fileReader = new FileReader();
       fileReader.onload = (e) => resolve(e);
@@ -134,7 +144,11 @@
   //Parses inputted files and saves them to the files array.
   onMount(() => {
     if (fieldState?.value) {
-      files = JSON.parse(fieldState.value);
+      let jsonValue = fieldState.value;
+      if(encodingProtection){
+        files = JSON.parse(jsonValue.slice(1, -1)); //Removes the first and last character of the string
+      }
+      else files = JSON.parse(jsonValue);
       if (maxFiles && files.length > maxFiles) {
         files = files.slice(0, maxFiles);
         notificationStore.actions.warning(
