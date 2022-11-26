@@ -51,6 +51,7 @@
   let buttonID = Math.random().toString(16);
 
   let files = []; //List of files - in link format
+  let blobFiles = []; //List of files - in blobLink format - Only used if useBlobURL is true
   let archivedFiles = []; //Stored copy of files in case a process fails
 
   let browseFiles = []; //Files that are selected to be uploaded
@@ -104,9 +105,14 @@
         browseFiles = [];
         document.getElementById(buttonID).value = null;
         files = files.concat(fileDataArray);
+        if (useBlobURL) {
+          for(let i = 0; i<browseFiles.length; i++){
+            blobFiles.push(URL.createObjectURL(browseFiles[i]));
+          }
+        }
         let json = JSON.stringify(files);
-        if(encodingProtection){
-          json = "."+json + ".";
+        if (encodingProtection) {
+          json = "." + json + ".";
         }
         const changed = fieldApi.setValue(json);
         if (onChange && changed) {
@@ -123,11 +129,6 @@
   };
   //Reads a file and returns a promise that resolves to a link
   function readFileToLink(file) {
-    if(useBlobURL){
-      return new Promise((resolve, reject) => {
-      resolve(URL.createObjectURL(file));
-    });
-    }
     return new Promise((resolve, reject) => {
       var fileReader = new FileReader();
       fileReader.onload = (e) => resolve(e);
@@ -141,14 +142,24 @@
     syncFilesWithField();
   }
 
+  let readDataLinkToBlobURL = (link) => {
+    return new Promise((resolve, reject) => {
+      fetch(link.link).then((r) => {
+        r.blob().then((blob) => {
+          let blobURL = URL.createObjectURL(blob);
+          resolve(blobURL);
+        });
+      });
+    });
+  };
+
   //Parses inputted files and saves them to the files array.
   onMount(() => {
     if (fieldState?.value) {
       let jsonValue = fieldState.value;
-      if(encodingProtection){
+      if (encodingProtection) {
         files = JSON.parse(jsonValue.slice(1, -1)); //Removes the first and last character of the string
-      }
-      else files = JSON.parse(jsonValue);
+      } else files = JSON.parse(jsonValue);
       if (maxFiles && files.length > maxFiles) {
         files = files.slice(0, maxFiles);
         notificationStore.actions.warning(
@@ -157,12 +168,39 @@
             " files in the field will be kept."
         );
       }
+      //add corresponding blob url if using it
+      if (useBlobURL) {
+        let fileToBlobPromises = [];
+        for (let i = 0; i < files.length; i++) {
+          fileToBlobPromises.push(readDataLinkToBlobURL(files[i]));
+        }
+        Promise.all(fileToBlobPromises)
+          .then((values) => {
+            blobFiles = values;
+          })
+          .catch((e) => {
+            notificationStore.actions.warning(
+              "Error reading files. Please exit the page to avoid losing data."
+            );
+            files = [];
+            archivedFiles = [];
+            blobFiles = [];
+          });
+      }
       archivedFiles = [...files];
     }
   });
 
   //Opens a file in a new tab.
-  let onLinkClick = (title, link) => {
+  let onLinkClick = (i) => {
+    let title = files[i].title;
+    let link = files[i].link;
+    if (useBlobURL) {
+      link = blobFiles[i];
+      let tab = window.open();
+      tab.location.href = link;
+      return;
+    }
     var iframe =
       "<html><head> <style>body {margin: 0;} </style><title>Attachment: " +
       title +
@@ -176,6 +214,9 @@
   };
   let deleteButtonClick = (index) => {
     files.splice(index, 1);
+    if (useBlobURL) {
+      blobFiles.splice(index, 1);
+    }
     syncFilesWithField();
   };
 </script>
@@ -216,7 +257,7 @@
               >
               <button
                 class="file-button file-button-link"
-                on:click={() => onLinkClick(file.name, file.link)}
+                on:click={() => onLinkClick(i)}
               >
                 {file.name}
               </button>

@@ -39,13 +39,13 @@
       {
         "type": "boolean",
         "key": "encodingProtection",
-        "label": "Encoding Protection - Resolves Budibase Bug #8826 For SQL Databases",
+        "label": "Encoding Protection - Resolves Budibase Bug #8826 For SQL Databases - Recommended",
         "defaultValue": true
       },
       {
         "type": "boolean",
         "key": "useBlobURL",
-        "label": "Use BlobURL instead of DataURL (Bypasses CORS issues in display - recommended)",
+        "label": "Use BlobURL instead of DataURL for opening files (Removes restriction for files to be opened in iFrame, which could be blocked + shorter URI - Recommended)",
         "defaultValue": true
       },
       {
