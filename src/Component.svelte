@@ -178,6 +178,7 @@
   onMount(() => {
     if (fieldState?.value) {
       let jsonValue = fieldState.value;
+      if(jsonValue == "0") return;
       if (encodingProtection) {
         files = JSON.parse(jsonValue.slice(1, -1)); //Removes the first and last character of the string
       } else files = JSON.parse(jsonValue);
