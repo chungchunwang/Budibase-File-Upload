@@ -114,6 +114,7 @@
         if (encodingProtection) {
           json = "." + json + ".";
         }
+        if(files.length == 0) json = "";
         const changed = fieldApi.setValue(json);
         if (onChange && changed) {
           onChange({ value: json });
