@@ -26,8 +26,10 @@
   const { notificationStore } = getContext("sdk");
 
   //Budibase field group setup
-  let fieldApi;
-  let fieldState;
+  export let fieldApi;
+  export let fieldState;
+  export let fieldSchema;
+  
   const formApi = formContext?.formApi;
   const labelPos = fieldGroupContext?.labelPosition || "above";
   $: formStep = formStepContext ? $formStepContext || 1 : 1;
@@ -39,9 +41,11 @@
     validation,
     formStep
   );
+  $: schemaType = fieldSchema?.type !== "formula" ? fieldSchema?.type : "string";
   $: unsubscribe = formField?.subscribe((value) => {
     fieldState = value?.fieldState;
     fieldApi = value?.fieldApi;
+    fieldSchema = value?.fieldSchema
   });
   $: labelClass =
     labelPos === "above" ? "" : `spectrum-FieldLabel--${labelPos}`;
@@ -249,6 +253,10 @@
 <div class="spectrum-Form-item" use:styleable={$component.styles}>
   {#if !formContext}
     <div class="placeholder">Form components need to be wrapped in a form</div>
+    {:else if !fieldState}
+    <div class="placeholder"></div>
+  {:else if schemaType && schemaType !== type && !["options", "longform"].includes(type)}
+  <div class="placeholder">This Field setting is the wrong data type for this component</div>
   {:else}
     <label
       class:hidden={!label}
@@ -258,7 +266,6 @@
       {label || " "}
     </label>
     <div class="spectrum-Form-itemField">
-      {#if fieldState}
         <input
           type="file"
           id={buttonID}
@@ -290,11 +297,10 @@
             </div>
           {/each}
         </div>
-      {/if}
+        {#if fieldState.error}
+          <div class="error">{fieldState.error}</div>
+        {/if}
     </div>
-    {#if fieldState?.error}
-        <div class="error">{fieldState.error}</div>
-      {/if}
   {/if}
 </div>
 
