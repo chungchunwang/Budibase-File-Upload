@@ -29,7 +29,8 @@
   export let fieldApi;
   export let fieldState;
   export let fieldSchema;
-  
+  export let type = "text";
+
   const formApi = formContext?.formApi;
   const labelPos = fieldGroupContext?.labelPosition || "above";
   $: formStep = formStepContext ? $formStepContext || 1 : 1;
