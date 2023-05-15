@@ -57,6 +57,12 @@
         "type": "validation/string",
         "label": "Validation",
         "key": "validation"
+      },
+      {
+        "type": "boolean",
+        "label": "Disabled",
+        "key": "disabled",
+        "defaultValue": false
       }
     ],
     "info": "Created by chungchunwang on GitHub at: https://github.com/chungchunwang/Budibase-File-Upload. You can find detailed instructions there. Please report any issues or feature requests to the GitHub repo (or perhaps star!)."

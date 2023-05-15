@@ -15,6 +15,7 @@
   export let encodingProtection;
   export let useBlobURL;
   export let validation;
+  export let disabled = false;
 
   //Getting budibase API
   const { styleable } = getContext("sdk");
@@ -34,7 +35,7 @@
     field,
     "text",
     0,
-    false,
+    disabled,
     validation,
     formStep
   );
@@ -271,6 +272,7 @@
           value="Browse..."
           class="browse-button"
           onclick="document.getElementById('{buttonID}').click();"
+          disabled = {fieldState.disabled}
         />
         <div>
           {#each files as file, i}
