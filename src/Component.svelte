@@ -14,6 +14,7 @@
   export let acceptedFiles;
   export let encodingProtection;
   export let useBlobURL;
+  export let validation;
 
   //Getting budibase API
   const { styleable } = getContext("sdk");
@@ -34,7 +35,7 @@
     "text",
     0,
     false,
-    null,
+    validation,
     formStep
   );
   $: unsubscribe = formField?.subscribe((value) => {
