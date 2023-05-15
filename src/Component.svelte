@@ -29,7 +29,7 @@
   export let fieldApi;
   export let fieldState;
   export let fieldSchema;
-  export let type = "text";
+  export let type = "string";
 
   const formApi = formContext?.formApi;
   const labelPos = fieldGroupContext?.labelPosition || "above";
