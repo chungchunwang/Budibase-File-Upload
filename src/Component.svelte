@@ -290,11 +290,11 @@
             </div>
           {/each}
         </div>
-        {#if fieldState.error}
-          <div class="error">{fieldState.error}</div>
-        {/if}
       {/if}
     </div>
+    {#if fieldState?.error}
+        <div class="error">{fieldState.error}</div>
+      {/if}
   {/if}
 </div>
 
