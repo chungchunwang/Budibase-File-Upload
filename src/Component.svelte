@@ -37,7 +37,7 @@
   $: formField = formApi?.registerField(
     field,
     "text",
-    0,
+    "",
     disabled,
     validation,
     formStep
