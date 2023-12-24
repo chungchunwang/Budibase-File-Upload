@@ -1,6 +1,6 @@
 <script>
   //By: Chungchun Wang (https://github.com/chungchunwang)
-  //To make the plugin fit the look of Budibase, some of this code and the styling is from the Attachment Field component (https://github.com/Budibase/budibase/blob/develop/packages/client/src/components/app/forms/AttachmentField.svelte) referenced in the docs.
+  //To make the plugin fit the look of Budibase, some of the HTML and styling is from the Attachment Field component (https://github.com/Budibase/budibase/blob/develop/packages/client/src/components/app/forms/AttachmentField.svelte) referenced in the docs. | Mozilla Public License Version 2.0
 
   //imports
   import { getContext, onDestroy, onMount } from "svelte";
@@ -157,7 +157,7 @@
       resolve(blobURL);
     });
   };
-  //https://stackoverflow.com/questions/12168909/blob-from-dataurl
+  //From https://stackoverflow.com/questions/12168909/blob-from-dataurl | CC BY-SA 4.0
   function dataURItoBlob(dataURI) {
     // convert base64 to raw binary data held in a string
     // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
