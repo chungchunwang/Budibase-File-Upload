@@ -1,6 +1,6 @@
 {
   "name": "Budibase-File-Upload",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "An amazing Budibase component!",
   "license": "MIT",
   "svelte": "index.js",
