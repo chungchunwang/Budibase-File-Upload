@@ -2,38 +2,42 @@
   //By: Chungchun Wang (https://github.com/chungchunwang)
   //To make the plugin fit the look of Budibase, some of the HTML and styling is from the Attachment Field component (https://github.com/Budibase/budibase/blob/develop/packages/client/src/components/app/forms/AttachmentField.svelte) referenced in the docs. | Mozilla Public License Version 2.0
 
-  //imports
+  //Import Svelte functions.
+  //getContext is used to get the Budibase API.
+  //onDestroy is used to deregister the field when the component is destroyed.
+  //onMount is used to read the field value when the component is mounted.
   import { getContext, onDestroy, onMount } from "svelte";
 
-  //input variables
-  export let field;
-  export let label;
-  export let onChange;
-  export let maxSize;
-  export let maxFiles;
-  export let acceptedFiles;
-  export let encodingProtection;
-  export let useBlobURL;
-  export let validation;
-  export let disabled = false;
+  //Get the variables we have registered for our component in the Budibase builder (with the schema).
+  export let field; //The form field we are targeting.
+  export let label; //The label of the form field.
+  export let maxSize; //The maximum size of a file that can be uploaded.
+  export let maxFiles; //The maximum number of files that can be uploaded.
+  export let acceptedFiles; //The file types that can be uploaded. (As a comma separated string)
+  export let encodingProtection; //Whether to add a period to the start and end of the JSON string to work around a Budibase bug (https://github.com/Budibase/budibase/issues/8826) that removes brackets from the beginning and end of text.
+  export let useBlobURL; //Whether to use blob URLs instead of data URLs. Data URLs are opened in an iFrame, which can be blocked based on CSP settings. Thus, blob URLs are recommended.
+  export let disabled = false; //Whether the field is disabled.
+  export let onChange; //A function that is called when the value of the field changes. We use this to allow the user to add custom on change functionality in the Budibase builder.
+  export let validation; //The validation rules for the field. We don't need to deal with this, we just need to pass it to the formApi, which does the validation.
 
   //Getting budibase API
-  const { styleable } = getContext("sdk");
-  const component = getContext("component");
-  const formContext = getContext("form");
-  const formStepContext = getContext("form-step");
-  const fieldGroupContext = getContext("field-group");
-  const { notificationStore } = getContext("sdk");
+  const { styleable } = getContext("sdk"); //Gets the styleable function from the Budibase API. This function is used to add Budibase styling to the component.
+  const component = getContext("component"); //Gets the component object from the Budibase API. We use it to get Budibase's component styling.
+  const formContext = getContext("form"); //Gets the form object from the Budibase API. We use it to get the formApi.
+  const formStepContext = getContext("form-step"); //Gets the form step store from the Budibase API. We use it to get the formStep.
+  const fieldGroupContext = getContext("field-group"); //Gets the field group object from the Budibase API. We use it to get the label position.
+  const { notificationStore } = getContext("sdk"); //Gets the notificationStore object from the Budibase API. We use it to display warnings.
 
   //Budibase field group setup
-  export let fieldApi;
-  export let fieldState;
-  export let fieldSchema;
-  export let type = "string";
+  let fieldApi;
+  let fieldState;
+  let fieldSchema;
+  let type = "string";
 
   const formApi = formContext?.formApi;
   const labelPos = fieldGroupContext?.labelPosition || "above";
-  $: formStep = formStepContext ? $formStepContext || 1 : 1;
+  // 
+  $: formStep = formStepContext ? $formStepContext || 1 : 1; // Checks if formStepContext (a Svelte store) exists. If it does, we take the value in the store (or 1 if the value in the store is falsy). If formStepContext does not exists, we also take 1.
   $: formField = formApi?.registerField(
     field,
     "text",
