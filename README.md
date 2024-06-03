@@ -13,6 +13,9 @@ Or watch it on YouTube at a higher framerate.
 
 [![Demo Youtube Video](https://img.youtube.com/vi/WgVQgUfEvhM/0.jpg)](https://www.youtube.com/watch?v=WgVQgUfEvhM)
 
+### Updated Ux Demo
+![20240603_134814](https://github.com/ConorWebb96/Budibase-File-Upload/assets/126772285/7b8fad19-c59d-4dac-ad82-85d8754c127f)
+
 ## Large Files - Configurations (READ IF YOU PLAN TO UPLOAD FILES > 1MB)
 ### Limitations
 Before we discuss configurations you might need to allow for large files sizes, note that the data you upload with this plugin is encoded into a String and serialized into JSON in the browser, which is not the most efficient process. Thus, it may not be practical to use this with very large files. My tests show that the page will freeze for about a second when uploading a 40mb file. A 160mb file freezes the page for about 5 seconds, so the processing time is roughly proportional to the file size. Note that these tests were done on a desktop computer and may vary based on the device running the page. As such, note that allowing larger files will come at the expense of minor freezes when uploading.
