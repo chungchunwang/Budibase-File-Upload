@@ -336,6 +336,15 @@
     selectedFileIdx += 1
   }
 </script>
+<!--
+  The following is the HTML template for the component.
+  If either the formContext or the fieldState is not defined, we display a placeholder.
+  If the schemaType is not defined or is not the same as the type, we display a placeholder.
+  Otherwise, we display the component.
+  The component is a file input that is hidden. Instead, we use a button to open the file input. This gives us more control over the styling of the file input.
+  Below the button, for each file in the files array, we display a label that opens the file in a new tab. We also display a delete button that removes the file from the files array.
+  If there is a validation error (based on user-set) validation requirements, we display an error message.
+-->
 <div class="spectrum-Form-item {fieldGroupContext ? "" : "spectrum-Form--labelsAbove"}" use:styleable={$component.styles}>
   {#if !formContext}
     <div class="placeholder">Form components need to be wrapped in a form</div>
