@@ -345,6 +345,7 @@
   Below the button, for each file in the files array, we display a label that opens the file in a new tab. We also display a delete button that removes the file from the files array.
   If there is a validation error (based on user-set) validation requirements, we display an error message.
 -->
+
 <div class="spectrum-Form-item {fieldGroupContext ? "" : "spectrum-Form--labelsAbove"}" use:styleable={$component.styles}>
   {#if !formContext}
     <div class="placeholder">Form components need to be wrapped in a form</div>
