@@ -4,22 +4,24 @@ on:
   push:
     branches:
       - master
-      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 16
-      - name: Make the production plugin bundle
+      - name: Make tarball
         run: |
           release_version=$(cat package.json | jq -r '.version')
           echo "RELEASE_VERSION=$release_version" >> $GITHUB_ENV
-          yarn
-          yarn build
+          cp -R github datasource/.github
+          cp -R github component/.github
+          cp -R github automation/.github
+          tar -C datasource -czf ./datasource.tar.gz ./
+          tar -C component -czf ./component.tar.gz ./
+          tar -C automation -czf ./automation.tar.gz ./
       - name: Perform Github Release
         uses: softprops/action-gh-release@v1
         with:
@@ -27,4 +29,6 @@ jobs:
           tag_name: v${{ env.RELEASE_VERSION }}
           generate_release_notes: true
           files: |
-            dist/*.tar.gz
+            datasource.tar.gz
+            component.tar.gz
+            automation.tar.gz
