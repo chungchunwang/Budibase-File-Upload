@@ -376,7 +376,7 @@
         type="button"
         value="Browse..."
         class="browse-button"
-        onclick="document.getElementById('{buttonID}').click();"
+        on:click={() => document.getElementById(buttonID).click()}
         disabled={fieldState.disabled}
       />
       {#if selectedFile}
